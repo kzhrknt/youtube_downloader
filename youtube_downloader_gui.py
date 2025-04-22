@@ -27,8 +27,15 @@ class VideoInfoThread(QThread):
                 'no_warnings': True,
                 'skip_download': True,
                 # reCAPTCHA回避のためのオプション
-                'extractor_args': {'youtube': {'player_client': ['android']}},  # AndroidクライアントとしてアクセスしてCAPTCHAを回避
-                'format': 'best',  # 最高品質の形式を自動選択
+                'extractor_args': {
+                    'youtube': {
+                        'player_client': ['android'],  # AndroidクライアントとしてアクセスしてCAPTCHAを回避
+                        'player_skip_youtubei_check': True,  # YouTubei APIチェックをスキップ
+                    }
+                },
+                'referer': 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',  # リファラーを設定
+                'user_agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Mobile Safari/537.36',  # モバイルのユーザーエージェント
+                'format': 'best'  # 最高品質の形式を自動選択
             }
             
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -99,7 +106,14 @@ class DownloadThread(QThread):
             'outtmpl': output_path,
             'progress_hooks': [self.progress_hook],
             # reCAPTCHA回避のためのオプション
-            'extractor_args': {'youtube': {'player_client': ['android']}},  # AndroidクライアントとしてアクセスしてCAPTCHAを回避
+            'extractor_args': {
+                'youtube': {
+                    'player_client': ['android'],  # AndroidクライアントとしてアクセスしてCAPTCHAを回避
+                    'player_skip_youtubei_check': True,  # YouTubei APIチェックをスキップ
+                }
+            },
+            'referer': 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',  # リファラーを設定
+            'user_agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Mobile Safari/537.36'  # モバイルのユーザーエージェント
         }
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -130,7 +144,14 @@ class DownloadThread(QThread):
         try:
             # reCAPTCHA回避のための共通オプション
             captcha_options = {
-                'extractor_args': {'youtube': {'player_client': ['android']}},  # AndroidクライアントとしてアクセスしてCAPTCHAを回避
+                'extractor_args': {
+                    'youtube': {
+                        'player_client': ['android'],  # AndroidクライアントとしてアクセスしてCAPTCHAを回避
+                        'player_skip_youtubei_check': True,  # YouTubei APIチェックをスキップ
+                    }
+                },
+                'referer': 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',  # リファラーを設定
+                'user_agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Mobile Safari/537.36'  # モバイルのユーザーエージェント
             }
             
             # 動画オプションにreCAPTCHA回避オプションを追加

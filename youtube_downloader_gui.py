@@ -26,6 +26,10 @@ class VideoInfoThread(QThread):
                 'quiet': True,
                 'no_warnings': True,
                 'skip_download': True,
+                # reCAPTCHA回避のためのオプション
+                'cookiefile': 'cookies.txt',     # Cookieファイルを使用
+                'cookiesfrombrowser': ('chrome',),  # ブラウザからCookieを取得
+                'extractor_args': {'youtube': {'player_client': ['android']}},  # AndroidクライアントとしてアクセスしてCAPTCHAを回避
             }
             
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -96,6 +100,10 @@ class DownloadThread(QThread):
             'progress_hooks': [self.progress_hook],
             'quiet': True,
             'no_warnings': True,
+            # reCAPTCHA回避のためのオプション
+            'cookiefile': 'cookies.txt',     # Cookieファイルを使用
+            'cookiesfrombrowser': ('chrome',),  # ブラウザからCookieを取得
+            'extractor_args': {'youtube': {'player_client': ['android']}},  # AndroidクライアントとしてアクセスしてCAPTCHAを回避
         }
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -124,6 +132,16 @@ class DownloadThread(QThread):
         }
         
         try:
+            # reCAPTCHA回避のための共通オプション
+            captcha_options = {
+                'cookiefile': 'cookies.txt',     # Cookieファイルを使用
+                'cookiesfrombrowser': ('chrome',),  # ブラウザからCookieを取得
+                'extractor_args': {'youtube': {'player_client': ['android']}},  # AndroidクライアントとしてアクセスしてCAPTCHAを回避
+            }
+            
+            # 動画オプションにreCAPTCHA回避オプションを追加
+            video_opts.update(captcha_options)
+            
             # 動画ファイルのダウンロード
             with yt_dlp.YoutubeDL(video_opts) as ydl:
                 video_info = ydl.extract_info(self.url, download=True)
@@ -138,6 +156,9 @@ class DownloadThread(QThread):
                 'quiet': True,
                 'no_warnings': True,
             }
+            
+            # 音声オプションにreCAPTCHA回避オプションを追加
+            audio_opts.update(captcha_options)
             
             with yt_dlp.YoutubeDL(audio_opts) as ydl:
                 audio_info = ydl.extract_info(self.url, download=True)

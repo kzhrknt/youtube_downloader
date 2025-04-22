@@ -7,19 +7,20 @@ YouTubeの動画を簡単にダウンロードするためのアプリケーシ�
 - 様々な品質・形式での動画ダウンロード
 - 高画質ダウンロードモード（動画と音声を別々にダウンロードして結合）
 - シンプルで使いやすいグラフィカルインターフェース
+- reCAPTCHAによるボット検出の回避機能
 
 ## インストール方法
 
 ### 方法1: pipを使用してインストール
 
 ```bash
-pip install git+https://github.com/yourusername/youtube_downloader.git
+pip install git+https://github.com/kzhrknt/youtube_downloader.git
 ```
 
 ### 方法2: ソースからインストール
 
 ```bash
-git clone https://github.com/yourusername/youtube_downloader.git
+git clone https://github.com/kzhrknt/youtube_downloader.git
 cd youtube_downloader
 pip install -e .
 ```
@@ -48,6 +49,18 @@ brew install ffmpeg
 sudo apt update
 sudo apt install ffmpeg
 ```
+
+## 「ボット検出」エラーへの対処法
+
+アプリを使用中に「Sign in to confirm you're not a bot」というエラーが表示される場合は、以下の方法で対処できます：
+
+1. ブラウザでYouTubeにログイン
+2. ブラウザから同じURLにアクセスして1回再生する
+3. アプリを再起動し、再度お試しください
+
+内部的には以下の機能が実装されています：
+- ブラウザのCookie情報を使用して認証情報を共有
+- モバイルクライアントとしてアクセスしてbot検出を回避
 
 ## 使い方
 

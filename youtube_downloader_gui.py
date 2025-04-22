@@ -133,12 +133,12 @@ class DownloadThread(QThread):
         # 高画質の動画のみをダウンロード（QuickTime互換性を考慮）
         self.progress_signal.emit(0, "高画質の動画をダウンロード中...")
         video_opts = {
-            # QuickTimeで再生可能なフォーマットを指定：h264形式のMP4を優先
-            'format': 'bestvideo[ext=mp4][vcodec^=avc]',
+            # QuickTimeで再生可能なフォーマットを指定（互換性向上）
+            'format': 'bestvideo[ext=mp4][vcodec^=avc]/bestvideo/best',
             'outtmpl': temp_video_path,
             'progress_hooks': [self.progress_hook],
-            'quiet': True,
-            'no_warnings': True,
+            'quiet': False,  # エラーメッセージを表示
+            'no_warnings': False,  # 警告メッセージを表示
         }
         
         try:
@@ -165,11 +165,11 @@ class DownloadThread(QThread):
             # 最高音質の音声のみをダウンロード（Mac互換性を考慮）
             self.progress_signal.emit(0, "高音質の音声をダウンロード中...")
             audio_opts = {
-                'format': 'bestaudio[ext=m4a]/bestaudio',  # m4aを優先、なければ最高音質
+                'format': 'bestaudio[ext=m4a]/bestaudio/best',  # m4aを優先、なければ最高音質、失敗時はbestを使用
                 'outtmpl': temp_audio_path,
                 'progress_hooks': [self.progress_hook],
-                'quiet': True,
-                'no_warnings': True,
+                'quiet': False,  # エラーメッセージを表示
+                'no_warnings': False,  # 警告メッセージを表示
             }
             
             # 音声オプションにreCAPTCHA回避オプションを追加

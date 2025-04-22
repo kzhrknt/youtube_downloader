@@ -27,9 +27,9 @@ class VideoInfoThread(QThread):
                 'no_warnings': True,
                 'skip_download': True,
                 # reCAPTCHA回避のためのオプション
-                'cookiefile': 'cookies.txt',     # Cookieファイルを使用
                 'cookiesfrombrowser': ('chrome',),  # ブラウザからCookieを取得
                 'extractor_args': {'youtube': {'player_client': ['android']}},  # AndroidクライアントとしてアクセスしてCAPTCHAを回避
+                'format': 'best',  # 最高品質の形式を自動選択
             }
             
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -95,13 +95,11 @@ class DownloadThread(QThread):
         
         # yt-dlp オプション
         ydl_opts = {
-            'format': self.format_id,
+            # 選択されたフォーマットIDがない場合はbestを使用
+            'format': self.format_id if self.format_id else 'best',
             'outtmpl': output_path,
             'progress_hooks': [self.progress_hook],
-            'quiet': True,
-            'no_warnings': True,
             # reCAPTCHA回避のためのオプション
-            'cookiefile': 'cookies.txt',     # Cookieファイルを使用
             'cookiesfrombrowser': ('chrome',),  # ブラウザからCookieを取得
             'extractor_args': {'youtube': {'player_client': ['android']}},  # AndroidクライアントとしてアクセスしてCAPTCHAを回避
         }
@@ -134,7 +132,6 @@ class DownloadThread(QThread):
         try:
             # reCAPTCHA回避のための共通オプション
             captcha_options = {
-                'cookiefile': 'cookies.txt',     # Cookieファイルを使用
                 'cookiesfrombrowser': ('chrome',),  # ブラウザからCookieを取得
                 'extractor_args': {'youtube': {'player_client': ['android']}},  # AndroidクライアントとしてアクセスしてCAPTCHAを回避
             }

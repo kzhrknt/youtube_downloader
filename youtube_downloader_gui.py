@@ -35,6 +35,7 @@ class VideoInfoThread(QThread):
                 },
                 'referer': 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',  # リファラーを設定
                 'user_agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Mobile Safari/537.36',  # モバイルのユーザーエージェント
+                'http_chunk_size': 10485760,  # チャンクサイズを10MBに設定（HTTP 416エラー対策）
                 'format': 'best'  # 最高品質の形式を自動選択
             }
             
@@ -113,7 +114,13 @@ class DownloadThread(QThread):
                 }
             },
             'referer': 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',  # リファラーを設定
-            'user_agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Mobile Safari/537.36'  # モバイルのユーザーエージェント
+            'user_agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Mobile Safari/537.36',  # モバイルのユーザーエージェント
+            'retries': 10,  # 再試行回数増加
+            'fragment_retries': 10,  # フラグメントのダウンロード再試行回数
+            'file_access_retries': 5,  # ファイルアクセスの再試行回数
+            'extractor_retries': 5,  # 抽出器の再試行回数
+            'http_chunk_size': 10485760,  # チャンクサイズを10MBに設定（HTTP 416エラー対策）
+            'downloader_options': {'http_chunk_size': 10485760}  # ダウンローダーオプションにもチャンクサイズを設定
         }
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -139,6 +146,10 @@ class DownloadThread(QThread):
             'progress_hooks': [self.progress_hook],
             'quiet': False,  # エラーメッセージを表示
             'no_warnings': False,  # 警告メッセージを表示
+            'retries': 10,  # 再試行回数増加
+            'fragment_retries': 10,  # フラグメントのダウンロード再試行回数
+            'file_access_retries': 5,  # ファイルアクセスの再試行回数
+            'extractor_retries': 5,  # 抽出器の再試行回数
         }
         
         try:
@@ -151,7 +162,9 @@ class DownloadThread(QThread):
                     }
                 },
                 'referer': 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',  # リファラーを設定
-                'user_agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Mobile Safari/537.36'  # モバイルのユーザーエージェント
+                'user_agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Mobile Safari/537.36',  # モバイルのユーザーエージェント
+                'http_chunk_size': 10485760,  # チャンクサイズを10MBに設定（HTTP 416エラー対策）
+                'downloader_options': {'http_chunk_size': 10485760},  # ダウンローダーオプションにもチャンクサイズを設定
             }
             
             # 動画オプションにreCAPTCHA回避オプションを追加
@@ -170,6 +183,10 @@ class DownloadThread(QThread):
                 'progress_hooks': [self.progress_hook],
                 'quiet': False,  # エラーメッセージを表示
                 'no_warnings': False,  # 警告メッセージを表示
+                'retries': 10,  # 再試行回数増加
+                'fragment_retries': 10,  # フラグメントのダウンロード再試行回数
+                'file_access_retries': 5,  # ファイルアクセスの再試行回数
+                'extractor_retries': 5,  # 抽出器の再試行回数
             }
             
             # 音声オプションにreCAPTCHA回避オプションを追加

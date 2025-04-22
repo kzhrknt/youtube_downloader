@@ -26,13 +26,6 @@ class VideoInfoThread(QThread):
                 'quiet': True,
                 'no_warnings': True,
                 'skip_download': True,
-                # シンプルなreCAPTCHA回避オプション
-                'extractor_args': {
-                    'youtube': {
-                        'player_client': ['android'],  # AndroidクライアントとしてアクセスしてCAPTCHAを回避
-                    }
-                },
-                'format': 'best'  # 最高品質の形式を自動選択
             }
             
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -103,12 +96,6 @@ class DownloadThread(QThread):
             'progress_hooks': [self.progress_hook],
             'quiet': True,
             'no_warnings': True,
-            # シンプルなreCAPTCHA回避オプション
-            'extractor_args': {
-                'youtube': {
-                    'player_client': ['android'],  # AndroidクライアントとしてアクセスしてCAPTCHAを回避
-                }
-            }
         }
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -128,27 +115,15 @@ class DownloadThread(QThread):
         # 高画質の動画のみをダウンロード（QuickTime互換性を考慮）
         self.progress_signal.emit(0, "高画質の動画をダウンロード中...")
         video_opts = {
-            # QuickTimeで再生可能なフォーマットを指定
+            # QuickTimeで再生可能なフォーマットを指定：h264形式のMP4を優先
             'format': 'bestvideo[ext=mp4][vcodec^=avc]',
             'outtmpl': temp_video_path,
             'progress_hooks': [self.progress_hook],
             'quiet': True,
-            'no_warnings': True
+            'no_warnings': True,
         }
         
         try:
-            # シンプルなオプション（元のコードに近づける）
-            captcha_options = {
-                'extractor_args': {
-                    'youtube': {
-                        'player_client': ['android'],  # AndroidクライアントとしてアクセスしてCAPTCHAを回避
-                    }
-                }
-            }
-            
-            # 動画オプションにreCAPTCHA回避オプションを追加
-            video_opts.update(captcha_options)
-            
             # 動画ファイルのダウンロード
             with yt_dlp.YoutubeDL(video_opts) as ydl:
                 video_info = ydl.extract_info(self.url, download=True)
@@ -161,11 +136,8 @@ class DownloadThread(QThread):
                 'outtmpl': temp_audio_path,
                 'progress_hooks': [self.progress_hook],
                 'quiet': True,
-                'no_warnings': True
+                'no_warnings': True,
             }
-            
-            # 音声オプションにreCAPTCHA回避オプションを追加
-            audio_opts.update(captcha_options)
             
             with yt_dlp.YoutubeDL(audio_opts) as ydl:
                 audio_info = ydl.extract_info(self.url, download=True)

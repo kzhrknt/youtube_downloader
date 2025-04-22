@@ -26,16 +26,12 @@ class VideoInfoThread(QThread):
                 'quiet': True,
                 'no_warnings': True,
                 'skip_download': True,
-                # reCAPTCHA回避のためのオプション
+                # シンプルなreCAPTCHA回避オプション
                 'extractor_args': {
                     'youtube': {
                         'player_client': ['android'],  # AndroidクライアントとしてアクセスしてCAPTCHAを回避
-                        'player_skip_youtubei_check': True,  # YouTubei APIチェックをスキップ
                     }
                 },
-                'referer': 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',  # リファラーを設定
-                'user_agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Mobile Safari/537.36',  # モバイルのユーザーエージェント
-                'http_chunk_size': 10485760,  # チャンクサイズを10MBに設定（HTTP 416エラー対策）
                 'format': 'best'  # 最高品質の形式を自動選択
             }
             
@@ -102,25 +98,17 @@ class DownloadThread(QThread):
         
         # yt-dlp オプション
         ydl_opts = {
-            # 選択されたフォーマットIDがない場合はbestを使用
-            'format': self.format_id if self.format_id else 'best',
+            'format': self.format_id,
             'outtmpl': output_path,
             'progress_hooks': [self.progress_hook],
-            # reCAPTCHA回避のためのオプション
+            'quiet': True,
+            'no_warnings': True,
+            # シンプルなreCAPTCHA回避オプション
             'extractor_args': {
                 'youtube': {
                     'player_client': ['android'],  # AndroidクライアントとしてアクセスしてCAPTCHAを回避
-                    'player_skip_youtubei_check': True,  # YouTubei APIチェックをスキップ
                 }
-            },
-            'referer': 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',  # リファラーを設定
-            'user_agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Mobile Safari/537.36',  # モバイルのユーザーエージェント
-            'retries': 10,  # 再試行回数増加
-            'fragment_retries': 10,  # フラグメントのダウンロード再試行回数
-            'file_access_retries': 5,  # ファイルアクセスの再試行回数
-            'extractor_retries': 5,  # 抽出器の再試行回数
-            'http_chunk_size': 10485760,  # チャンクサイズを10MBに設定（HTTP 416エラー対策）
-            'downloader_options': {'http_chunk_size': 10485760}  # ダウンローダーオプションにもチャンクサイズを設定
+            }
         }
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -140,31 +128,22 @@ class DownloadThread(QThread):
         # 高画質の動画のみをダウンロード（QuickTime互換性を考慮）
         self.progress_signal.emit(0, "高画質の動画をダウンロード中...")
         video_opts = {
-            # QuickTimeで再生可能なフォーマットを指定（互換性向上）
-            'format': 'bestvideo[ext=mp4][vcodec^=avc]/bestvideo/best',
+            # QuickTimeで再生可能なフォーマットを指定
+            'format': 'bestvideo[ext=mp4][vcodec^=avc]',
             'outtmpl': temp_video_path,
             'progress_hooks': [self.progress_hook],
-            'quiet': False,  # エラーメッセージを表示
-            'no_warnings': False,  # 警告メッセージを表示
-            'retries': 10,  # 再試行回数増加
-            'fragment_retries': 10,  # フラグメントのダウンロード再試行回数
-            'file_access_retries': 5,  # ファイルアクセスの再試行回数
-            'extractor_retries': 5,  # 抽出器の再試行回数
+            'quiet': True,
+            'no_warnings': True
         }
         
         try:
-            # reCAPTCHA回避のための共通オプション
+            # シンプルなオプション（元のコードに近づける）
             captcha_options = {
                 'extractor_args': {
                     'youtube': {
                         'player_client': ['android'],  # AndroidクライアントとしてアクセスしてCAPTCHAを回避
-                        'player_skip_youtubei_check': True,  # YouTubei APIチェックをスキップ
                     }
-                },
-                'referer': 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',  # リファラーを設定
-                'user_agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Mobile Safari/537.36',  # モバイルのユーザーエージェント
-                'http_chunk_size': 10485760,  # チャンクサイズを10MBに設定（HTTP 416エラー対策）
-                'downloader_options': {'http_chunk_size': 10485760},  # ダウンローダーオプションにもチャンクサイズを設定
+                }
             }
             
             # 動画オプションにreCAPTCHA回避オプションを追加
@@ -178,15 +157,11 @@ class DownloadThread(QThread):
             # 最高音質の音声のみをダウンロード（Mac互換性を考慮）
             self.progress_signal.emit(0, "高音質の音声をダウンロード中...")
             audio_opts = {
-                'format': 'bestaudio[ext=m4a]/bestaudio/best',  # m4aを優先、なければ最高音質、失敗時はbestを使用
+                'format': 'bestaudio[ext=m4a]/bestaudio',  # m4aを優先、なければ最高音質
                 'outtmpl': temp_audio_path,
                 'progress_hooks': [self.progress_hook],
-                'quiet': False,  # エラーメッセージを表示
-                'no_warnings': False,  # 警告メッセージを表示
-                'retries': 10,  # 再試行回数増加
-                'fragment_retries': 10,  # フラグメントのダウンロード再試行回数
-                'file_access_retries': 5,  # ファイルアクセスの再試行回数
-                'extractor_retries': 5,  # 抽出器の再試行回数
+                'quiet': True,
+                'no_warnings': True
             }
             
             # 音声オプションにreCAPTCHA回避オプションを追加

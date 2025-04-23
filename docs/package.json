@@ -1,0 +1,10 @@
+{
+  "name": "youtube-downloader-installer",
+  "version": "1.0.0",
+  "description": "YouTube Downloader Installation Guide",
+  "author": "Kenta Kuzuhara",
+  "private": true,
+  "scripts": {
+    "open": "open index.html"
+  }
+}

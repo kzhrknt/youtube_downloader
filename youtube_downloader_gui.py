@@ -466,28 +466,44 @@ class YouTubeDownloaderApp(QMainWindow):
     
     def format_duration(self, seconds):
         """秒を時:分:秒形式に変換"""
-        hours, remainder = divmod(seconds, 3600)
-        minutes, seconds = divmod(remainder, 60)
-        
-        if hours:
-            return f"{int(hours)}時間{int(minutes)}分{int(seconds)}秒"
-        else:
-            return f"{int(minutes)}分{int(seconds)}秒"
+        try:
+            # 数値型でない場合は変換を試みる
+            if not isinstance(seconds, (int, float)):
+                seconds = float(seconds)
+                
+            hours, remainder = divmod(seconds, 3600)
+            minutes, seconds = divmod(remainder, 60)
+            
+            if hours:
+                return f"{int(hours)}時間{int(minutes)}分{int(seconds)}秒"
+            else:
+                return f"{int(minutes)}分{int(seconds)}秒"
+        except (ValueError, TypeError):
+            # 変換できない場合は不明と表示
+            return "不明"
     
     def format_filesize(self, bytes_size):
         """バイトサイズを読みやすい形式に変換"""
         if bytes_size is None:
             return "不明"
         
-        # MB単位に変換
-        mb_size = bytes_size / (1024 * 1024)
-        
-        if mb_size < 1000:
-            return f"{mb_size:.2f} MB"
-        else:
-            # GB単位に変換
-            gb_size = mb_size / 1024
-            return f"{gb_size:.2f} GB"
+        try:
+            # 数値型でない場合は変換を試みる
+            if not isinstance(bytes_size, (int, float)):
+                bytes_size = float(bytes_size)
+            
+            # MB単位に変換
+            mb_size = bytes_size / (1024 * 1024)
+            
+            if mb_size < 1000:
+                return f"{mb_size:.2f} MB"
+            else:
+                # GB単位に変換
+                gb_size = mb_size / 1024
+                return f"{gb_size:.2f} GB"
+        except (ValueError, TypeError):
+            # 変換できない場合
+            return "不明"
     
     def update_video_info(self, info):
         """動画情報を更新"""
@@ -499,8 +515,15 @@ class YouTubeDownloaderApp(QMainWindow):
             
             # 長さを表示
             duration = info.get('duration')
-            if duration:
-                self.duration_label.setText(f"長さ: {self.format_duration(duration)}")
+            if duration is not None:
+                try:
+                    # 数値として処理できるか確認
+                    if isinstance(duration, (int, float)) or (isinstance(duration, str) and duration.replace('.', '', 1).isdigit()):
+                        self.duration_label.setText(f"長さ: {self.format_duration(duration)}")
+                    else:
+                        self.duration_label.setText(f"長さ: {duration}")
+                except Exception:
+                    self.duration_label.setText("長さ: 不明")
             else:
                 self.duration_label.setText("長さ: 不明")
             
